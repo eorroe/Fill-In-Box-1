@@ -210,9 +210,9 @@ function nextGame(){
     Notification.requestPermission(function(p){
         if(p == "granted"){
             notify = new Notification("New Message From Edwin", {body: "You should try out part 2 CLICK THIS BOX!!!"});
-            /*notify.onclick = function(){
+            notify.addEventListener('click', function(){
                 location.href = location.href.replace("1", "2");
-            };*/
+            })
         }
     });
 };
