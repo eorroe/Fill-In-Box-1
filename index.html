@@ -203,6 +203,16 @@ document.addEventListener("keydown", function(evt) {
         }
     };
 });
+
+//NOTIFICATIONS
+window.onload = function(){
+    Notification.requestPermission(function(p){
+        if(p == "granted"){
+            notify = new Notification("New Message From Edwin", {body: "You should try out part 2 CLICK THIS BOX!!!"});
+        }
+    });
+
+}
 </script>
 </body>
 </html>
