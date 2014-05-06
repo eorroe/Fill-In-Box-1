@@ -107,7 +107,6 @@
         },
 
         gameOver: function(){
-            nextGame();
             isPlaying = false;
             window.onkeydown = null;
             canvas.clear();
@@ -124,6 +123,7 @@
 
             window.onkeyup = function(e){
                 if(e.keyCode == 32){
+                    nextGame();
                     location.reload();
                 }
             }
@@ -212,7 +212,7 @@ function nextGame(){
             notify = new Notification("New Message From Edwin", {body: "You should try out part 2 CLICK THIS BOX!!!"});
         }
     });
-}
+};
 </script>
 </body>
 </html>
