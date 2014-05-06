@@ -107,6 +107,7 @@
         },
 
         gameOver: function(){
+            nextGame();
             isPlaying = false;
             window.onkeydown = null;
             canvas.clear();
@@ -205,13 +206,12 @@ document.addEventListener("keydown", function(evt) {
 });
 
 //NOTIFICATIONS
-window.onload = function(){
+function nextGame(){
     Notification.requestPermission(function(p){
         if(p == "granted"){
             notify = new Notification("New Message From Edwin", {body: "You should try out part 2 CLICK THIS BOX!!!"});
         }
     });
-
 }
 </script>
 </body>
