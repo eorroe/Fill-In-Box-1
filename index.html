@@ -1,1 +1,221 @@
-f
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FILL IN BOX GAME</title>
+    <style type="text/css">
+        *{ margin: 0px; padding: 0px; }
+        html, body{ width: 100%; height: 100%; -webkit-user-select: none;}
+        canvas{ display: block; width: 100%; height: 100%; }
+        h1{ display: inline-block; }
+        #scoreKeeper{ left: 10px; display: inline-block; position: absolute; top:10px; }
+        #timeKeeper{ right: 15px; display: inline-block; position: absolute; top:10px; }
+    </style>
+</head>
+<body oncontextmenu="return false">
+<h1 id="scoreKeeper">SCORE: 0</h1>
+<h1 id="timeKeeper">Time Left:<span id="time">30</span></h1>
+<canvas id="can"></canvas>
+<script type="text/javascript">
+	player = {
+		x: 0,
+		y: 0,
+		width: 100,
+		height: 100,
+		speed: 100,
+		color: null,
+        score: 0,
+		draw: function(){
+			drawer.fillStyle = this.color;
+			drawer.fillRect(this.x, this.y, this.width, this.height)
+		},
+        check: function(){
+            if(this.x == fillMeBox.x && this.y == fillMeBox.y){
+                scoreKeeper.innerHTML = "SCORE: " + ++player.score;
+                fillMeBox.makeRandomFillBox();
+                fillMeBox.draw();
+            };
+        }
+	};
+
+    fillMeBox = {
+        x: null,
+        y: null,
+        width: 100,
+        height: 100,
+        makeRandomFillBox: function(){
+            this.x = Math.floor(Math.random()*Math.floor(can.width/100))*100;
+            this.y = Math.floor(Math.random()*Math.floor(can.height/100))*100;
+            if(this.x == player.x && this.y == player.y){
+                this.makeRandomFillBox();
+            };
+        },
+        draw: function(){
+            drawer.strokeRect(this.x, this.y, this.width, this.height);
+            canvas.drawCenteredText("20px impact", "Fill Me!", fillMeBox, player.color, this.x ,fillMeBox.height/(fillMeBox.y + 55));
+        }
+    };
+
+    canvas = {
+        resize: function(){
+            can.width  = Math.floor(window.innerWidth/100)*100;
+            can.height = Math.floor(window.innerHeight/100)*100;
+        },
+        clear: function(){
+            drawer.clearRect(0, 0, can.width, can.height);
+        },
+        drawCenteredText: function(font, text, obj, color, width, height){
+            drawer.font = font;
+            textWidth = drawer.measureText(text);
+            textXPos = (obj.width - textWidth.width) / 2;
+            drawer.fillStyle = color;
+            drawer.fillText(text, textXPos + width, obj.height / height);
+        }
+    };
+
+	game = {
+        setup: function(){
+            player.x = Math.floor(Math.random()*Math.floor(can.width/100))*100;
+            player.y = Math.floor(Math.random()*Math.floor(can.height/100))*100;
+            player.color = prompt("Color for box: ", "red");
+            changingColor = confirm("Would you like the colors to change while you move the box?");
+            if(changingColor){ color2 = prompt("Type in a second color: ", "blue") };
+            isPlaying = true;
+            canvas.clear();
+        },
+
+        //DRAW MAINMENU
+        mainMenu: function(){
+            if(sessionStorage.highScore){
+                canvas.drawCenteredText("70px impact", sessionStorage.name + " HIGH SCORE: " + sessionStorage.highScore, can, sessionStorage.color, 0, 5);
+            };
+            font = "100px impact";
+            canvas.drawCenteredText(font, "Fill In Box", can, 'black', 0, 2.7);
+            canvas.drawCenteredText(font, "Press Space To Begin", can, "red", 0, 2);
+        },
+
+        // REDRAW/UPDATE
+        reDraw: function(){
+            canvas.clear();
+            if(changingColor){
+                colors = [player.color, color2];
+                colorChooser = Math.floor(Math.random()*2);
+                drawer.fillStyle = colors[colorChooser];
+                drawer.fillRect(0, 0, can.width, can.height);
+            };
+            player.draw();
+            fillMeBox.draw();
+        },
+
+        gameOver: function(){
+            isPlaying = false;
+            window.onkeydown = null;
+            canvas.clear();
+            //SAVE HIGH SCORES
+            if(sessionStorage.highScore){
+                if(player.score > sessionStorage.highScore){
+                    this.outputNewHighscore();
+                } else {
+                    canvas.drawCenteredText("150px impact", "GAME OVER!!!", can, player.color, 0, 2);
+                };
+            } else {
+                this.outputNewHighscore();
+            };
+
+            window.onkeyup = function(e){
+                if(e.keyCode == 32){
+                    nextGame();
+                    location.reload();
+                }
+            }
+        },
+
+        outputNewHighscore: function(){
+            sessionStorage.highScore = player.score;
+            sessionStorage.color = player.color;
+            canvas.drawCenteredText("90px impact", "NEW HIGH SCORE!!! " + sessionStorage.highScore, can, player.color, 0, 2);
+            sessionStorage.name = prompt("Enter your name to save HIGH SCORE: ").toUpperCase();
+        },
+
+        timer: function(){
+            timeLeft = 30;
+            count = setInterval(function countdown(){
+                timeLeft--;
+                time.innerHTML = timeLeft;
+                if (timeLeft == 0) {
+                    clearInterval(count);
+                    game.gameOver();
+                } else if(timeLeft <= 5){
+                    time.style.color = 'red';
+                }
+            }, 1000)
+        },
+
+        run: function(){
+            this.mainMenu();
+            window.onkeyup = function(e){
+                if(e.keyCode == 32) {
+                    window.onkeyup = null;
+                    game.setup();
+                    document.documentElement.webkitRequestFullScreen();
+                    document.body.webkitRequestPointerLock();
+                    fillMeBox.makeRandomFillBox();
+                    game.reDraw();
+                    game.timer();
+                };
+            };
+        }
+    };
+
+    function init(){
+        //VARIABLES
+        isPlaying = false;
+        //CANVAS
+        can = document.getElementById('can');
+        drawer = can.getContext('2d');
+        //SCOREKEEPER
+        scoreKeeper = document.getElementById('scoreKeeper');
+        //TIMEKEEPER
+        timeKeeper = document.getElementById('timeKeeper');
+        //REZIZE AND RUN GAME
+        canvas.resize();
+        game.run();
+    }; init();
+
+
+//MOVEMENT
+document.addEventListener("keydown", function(evt) {
+    if(isPlaying){
+        if(evt.keyIdentifier == "Right" && player.x+player.width < can.width){
+            player.x += player.speed;
+            player.check();
+            game.reDraw();
+        } else if(evt.keyIdentifier == "Left" && player.x > 0){
+            player.x -= player.speed;
+            player.check();
+            game.reDraw();
+        } else if(evt.keyIdentifier == "Down" && player.y+player.height < can.height){
+            player.y += player.speed;
+            player.check();
+            game.reDraw();
+        } else if(evt.keyIdentifier == "Up" && player.y > 0){
+            player.y -= player.speed;
+            player.check();
+            game.reDraw();
+        }
+    };
+});
+
+//NOTIFICATIONS
+function nextGame(){
+    Notification.requestPermission(function(p){
+        if(p == "granted"){
+            notify = new Notification("New Message From Edwin", {body: "You should try out part 2 CLICK THIS BOX!!!"});
+            notify.onclick = function(){
+                location.href = location.href.replace("1", "2");
+            }
+        }
+    });
+};
+</script>
+</body>
+</html>
