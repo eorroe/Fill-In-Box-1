@@ -209,7 +209,7 @@ document.addEventListener("keydown", function(evt) {
 function nextGame(){
     Notification.requestPermission(function(p){
         if(p == "granted"){
-            notify = new Notification("New Message From Edwin", {body: "You should try out part 2 CLICK THIS BOX!!!"});
+            notify = new Notification("New Message From Edwin", {body: "You should try out part 2 http://eorroe.github.io/Fill-In-Box-2/"});
             notify.addEventListener('click', function(){
                 window.location.href = "http://eorroe.github.io/Fill-In-Box-2/";
             })
