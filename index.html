@@ -85,8 +85,8 @@
 
         //DRAW MAINMENU
         mainMenu: function(){
-            if(sessionStorage.highScore){
-                canvas.drawCenteredText("70px impact", sessionStorage.name + " HIGH SCORE: " + sessionStorage.highScore, can, sessionStorage.color, 0, 5);
+            if(sessionStorage.highScore1){
+                canvas.drawCenteredText("70px impact", sessionStorage.name + " HIGH SCORE: " + sessionStorage.highScore1, can, sessionStorage.color, 0, 5);
             };
             font = "100px impact";
             canvas.drawCenteredText(font, "Fill In Box", can, 'black', 0, 2.7);
@@ -111,8 +111,8 @@
             window.onkeydown = null;
             canvas.clear();
             //SAVE HIGH SCORES
-            if(sessionStorage.highScore){
-                if(player.score > sessionStorage.highScore){
+            if(sessionStorage.highScore1){
+                if(player.score > sessionStorage.highScore1){
                     this.outputNewHighscore();
                 } else {
                     canvas.drawCenteredText("150px impact", "GAME OVER!!!", can, player.color, 0, 2);
@@ -130,9 +130,9 @@
         },
 
         outputNewHighscore: function(){
-            sessionStorage.highScore = player.score;
+            sessionStorage.highScore1 = player.score;
             sessionStorage.color = player.color;
-            canvas.drawCenteredText("90px impact", "NEW HIGH SCORE!!! " + sessionStorage.highScore, can, player.color, 0, 2);
+            canvas.drawCenteredText("90px impact", "NEW HIGH SCORE!!! " + sessionStorage.highScore1, can, player.color, 0, 2);
             sessionStorage.name = prompt("Enter your name to save HIGH SCORE: ").toUpperCase();
         },
 
@@ -212,7 +212,7 @@ function nextGame(){
             notify = new Notification("New Message From Edwin", {body: "You should try out part 2 http://eorroe.github.io/Fill-In-Box-2/"});
             notify.addEventListener('click', function(){
                 window.location.href = "http://eorroe.github.io/Fill-In-Box-2/";
-            })
+            });
         }
     });
 };
