@@ -1,221 +1,159 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>FILL IN BOX GAME</title>
-    <style type="text/css">
-        *{ margin: 0px; padding: 0px; }
-        html, body{ width: 100%; height: 100%; -webkit-user-select: none;}
-        canvas{ display: block; width: 100%; height: 100%; }
-        h1{ display: inline-block; }
-        #scoreKeeper{ left: 10px; display: inline-block; position: absolute; top:10px; }
-        #timeKeeper{ right: 15px; display: inline-block; position: absolute; top:10px; }
-    </style>
-</head>
-<body oncontextmenu="return false">
-<h1 id="scoreKeeper">SCORE: 0</h1>
-<h1 id="timeKeeper">Time Left:<span id="time">30</span></h1>
-<canvas id="can"></canvas>
-<script type="text/javascript">
-	player = {
-		x: 0,
-		y: 0,
-		width: 100,
-		height: 100,
-		speed: 100,
-		color: null,
-        score: 0,
-		draw: function(){
-			drawer.fillStyle = this.color;
-			drawer.fillRect(this.x, this.y, this.width, this.height)
-		},
-        check: function(){
-            if(this.x == fillMeBox.x && this.y == fillMeBox.y){
-                scoreKeeper.innerHTML = "SCORE: " + ++player.score;
-                fillMeBox.makeRandomFillBox();
-                fillMeBox.draw();
-            };
-        }
-	};
-
-    fillMeBox = {
-        x: null,
-        y: null,
-        width: 100,
-        height: 100,
-        makeRandomFillBox: function(){
-            this.x = Math.floor(Math.random()*Math.floor(can.width/100))*100;
-            this.y = Math.floor(Math.random()*Math.floor(can.height/100))*100;
-            if(this.x == player.x && this.y == player.y){
-                this.makeRandomFillBox();
-            };
-        },
-        draw: function(){
-            drawer.strokeRect(this.x, this.y, this.width, this.height);
-            canvas.drawCenteredText("20px impact", "Fill Me!", fillMeBox, player.color, this.x ,fillMeBox.height/(fillMeBox.y + 55));
-        }
-    };
-
-    canvas = {
-        resize: function(){
-            can.width  = Math.floor(window.innerWidth/100)*100;
-            can.height = Math.floor(window.innerHeight/100)*100;
-        },
-        clear: function(){
-            drawer.clearRect(0, 0, can.width, can.height);
-        },
-        drawCenteredText: function(font, text, obj, color, width, height){
-            drawer.font = font;
-            textWidth = drawer.measureText(text);
-            textXPos = (obj.width - textWidth.width) / 2;
-            drawer.fillStyle = color;
-            drawer.fillText(text, textXPos + width, obj.height / height);
-        }
-    };
-
-	game = {
-        setup: function(){
-            player.x = Math.floor(Math.random()*Math.floor(can.width/100))*100;
-            player.y = Math.floor(Math.random()*Math.floor(can.height/100))*100;
-            player.color = prompt("Color for box: ", "red");
-            changingColor = confirm("Would you like the colors to change while you move the box?");
-            if(changingColor){ color2 = prompt("Type in a second color: ", "blue") };
-            isPlaying = true;
-            canvas.clear();
-        },
-
-        //DRAW MAINMENU
-        mainMenu: function(){
-            if(sessionStorage.highScore1){
-                canvas.drawCenteredText("70px impact", sessionStorage.name + " HIGH SCORE: " + sessionStorage.highScore1, can, sessionStorage.color, 0, 5);
-            };
-            font = "100px impact";
-            canvas.drawCenteredText(font, "Fill In Box", can, 'black', 0, 2.7);
-            canvas.drawCenteredText(font, "Press Space To Begin", can, "red", 0, 2);
-        },
-
-        // REDRAW/UPDATE
-        reDraw: function(){
-            canvas.clear();
-            if(changingColor){
-                colors = [player.color, color2];
-                colorChooser = Math.floor(Math.random()*2);
-                drawer.fillStyle = colors[colorChooser];
-                drawer.fillRect(0, 0, can.width, can.height);
-            };
-            player.draw();
-            fillMeBox.draw();
-        },
-
-        gameOver: function(){
-            isPlaying = false;
-            window.onkeydown = null;
-            canvas.clear();
-            //SAVE HIGH SCORES
-            if(sessionStorage.highScore1){
-                if(player.score > sessionStorage.highScore1){
-                    this.outputNewHighscore();
-                } else {
-                    canvas.drawCenteredText("150px impact", "GAME OVER!!!", can, player.color, 0, 2);
-                };
-            } else {
-                this.outputNewHighscore();
-            };
-
-            window.onkeyup = function(e){
-                if(e.keyCode == 32){
-                    nextGame();
-                    location.reload();
-                }
-            }
-        },
-
-        outputNewHighscore: function(){
-            sessionStorage.highScore1 = player.score;
-            sessionStorage.color = player.color;
-            canvas.drawCenteredText("90px impact", "NEW HIGH SCORE!!! " + sessionStorage.highScore1, can, player.color, 0, 2);
-            sessionStorage.name = prompt("Enter your name to save HIGH SCORE: ").toUpperCase();
-        },
-
-        timer: function(){
-            timeLeft = 30;
-            count = setInterval(function countdown(){
-                timeLeft--;
-                time.innerHTML = timeLeft;
-                if (timeLeft == 0) {
-                    clearInterval(count);
-                    game.gameOver();
-                } else if(timeLeft <= 5){
-                    time.style.color = 'red';
-                }
-            }, 1000)
-        },
-
-        run: function(){
-            this.mainMenu();
-            window.onkeyup = function(e){
-                if(e.keyCode == 32) {
-                    window.onkeyup = null;
-                    game.setup();
-                    document.documentElement.webkitRequestFullScreen();
-                    document.body.webkitRequestPointerLock();
-                    fillMeBox.makeRandomFillBox();
+    <head>
+        <title>FILL IN BOX GAME</title>
+        <style type="text/css">
+            html, body, canvas{ width: 100%; height: 100%; }
+            body, h1{ margin: 0; padding: 0; }
+            canvas{ display: block; }
+            h1{ position: absolute; -webkit-user-select: none; }
+            #scoreKeeper{ left: 10px; }
+            #timeKeeper{ right: 10px; }
+        </style>
+    </head>
+    <body oncontextmenu="return false">
+        <h1 id="scoreKeeper">SCORE: 0</h1>
+        <h1 id="timeKeeper">Time Left: <span id="time">30</span></h1>
+        <canvas id="can"></canvas>
+        <script type="text/javascript">
+        	var player = {
+                size: 100,
+                score: 0,
+        		draw: function(){
+        			drawer.fillStyle = this.color;
+        			drawer.fillRect(this.x, this.y, this.size, this.size);
+        		},
+                check: function(){
+                    if(this.x == fillMeBox.x && this.y == fillMeBox.y){
+                        scoreKeeper.innerText = "SCORE: " + ++this.score;
+                        fillMeBox.make().draw();
+                    };
                     game.reDraw();
-                    game.timer();
-                };
+                }
+        	};
+            var fillMeBox = {
+                width: 100,
+                height: 100,
+                make: function(){
+                    this.x = Math.floor(Math.random()*Math.floor(can.width/100))*100;
+                    this.y = Math.floor(Math.random()*Math.floor(can.height/100))*100;
+                    if(this.x == player.x && this.y == player.y) this.make();
+                    return this;
+                },
+                draw: function(){
+                    drawer.strokeRect(this.x, this.y, this.width, this.height);
+                    canvas.drawCenteredText({font:"20px impact", text:"Fill Me!", obj:this, color:player.color, width: this.x, height: this.height/(this.y + 55)});
+                }
             };
-        }
-    };
+            var canvas = {
+                resize: function(){
+                    can.width  = Math.floor(window.innerWidth/100)*100;
+                    can.height = Math.floor(window.innerHeight/100)*100;
+                },
+                clear: function(){
+                    drawer.clearRect(0, 0, can.width, can.height);
+                },
+                drawCenteredText: function(data){
+                    drawer.font      = data.font;
+                    var textWidth    = drawer.measureText(data.text);
+                    var textXPos     = (data.obj.width - textWidth.width) / 2;
+                    drawer.fillStyle = data.color;
+                    drawer.fillText(data.text, textXPos + data.width, data.obj.height / data.height);
+                }
+            };
+        	var game = {
+                isPlaying: false,
+                setup: function(){
+                    player.x           = Math.floor(Math.random()*Math.floor(can.width/100))*100;
+                    player.y           = Math.floor(Math.random()*Math.floor(can.height/100))*100;
+                    player.color       = prompt("Color for box: ", "RED");
+                    game.changingColor = confirm("Changing Color MODE?");
+                    if(game.changingColor) game.color2 = prompt("Type in a second color: ", "BLUE");
+                    this.isPlaying = true;
+                    canvas.clear();
+                },
+                mainMenu: function(){
+                    canvas.drawCenteredText({font:"100px impact", text:"Fill In Box", obj:can, color:"black", width:0, height:3});
+                    canvas.drawCenteredText({font:"100px impact", text:"Press Space To Begin", obj:can, color:"red", width:0, height:2});
+                    if(sessionStorage.highScore1) canvas.drawCenteredText({font:"70px impact", text:sessionStorage.name + " HIGH SCORE: " + sessionStorage.highScore1, obj:can, color:sessionStorage.color, width:0, height:5});
+                },
+                reDraw: function(){
+                    canvas.clear();
+                    if(game.changingColor){
+                        var colors = [player.color, game.color2];
+                        var colorChooser = Math.floor(Math.random()*2);
+                        drawer.fillStyle = colors[colorChooser];
+                        drawer.fillRect(0, 0, can.width, can.height);
+                    };
+                    player.draw();
+                    fillMeBox.draw();
+                },
+                gameOver: function(){
+                    canvas.clear();
+                    this.isPlaying = false;
+                    window.onkeydown = null;
+                    if(sessionStorage.highScore1){
+                        (player.score > sessionStorage.highScore1) ? this.outputNewHighscore() : canvas.drawCenteredText({font:"150px impact", text:"GAME OVER!!!", obj:can, color:player.color, width:0, height:2});
+                    } else {
+                        this.outputNewHighscore();
+                    };
+                    document.webkitExitFullscreen();
+                    document.exitPointerLock();
+                },
+                outputNewHighscore: function(){
+                    sessionStorage.highScore1 = player.score;
+                    sessionStorage.color = player.color;
+                    canvas.drawCenteredText({font:"90px impact", text:"NEW HIGH SCORE!!! " + sessionStorage.highScore1, obj:can, color:player.color, width:0, height:2});
+                    sessionStorage.name = prompt("Enter your name to save HIGH SCORE: ").toUpperCase();
+                },
+                startTime: function(){
+                    var timeLeft = 30;
+                    var count = setInterval(function(){
+                        time.innerText = --timeLeft;
+                        if(timeLeft == 0){
+                            clearInterval(count);
+                            this.gameOver();
+                        } else if(timeLeft == 5){
+                            time.style.color = 'red';
+                        };
+                    }.bind(this), 1000);
+                },
+                run: function(){
+                    this.mainMenu();
+                    window.onkeyup = function(e){
+                        if(e.keyCode == 32) {
+                            window.onkeyup = null;
+                            this.setup();
+                            document.body.webkitRequestFullScreen();
+                            document.body.requestPointerLock();
+                            fillMeBox.make();
+                            this.reDraw();
+                            this.startTime();
+                        };
+                    }.bind(this);
+                }
+            };
 
-    function init(){
-        //VARIABLES
-        isPlaying = false;
-        //CANVAS
-        can = document.getElementById('can');
-        drawer = can.getContext('2d');
-        //SCOREKEEPER
-        scoreKeeper = document.getElementById('scoreKeeper');
-        //TIMEKEEPER
-        timeKeeper = document.getElementById('timeKeeper');
-        //REZIZE AND RUN GAME
-        canvas.resize();
-        game.run();
-    }; init();
-
-
-//MOVEMENT
-document.addEventListener("keydown", function(evt) {
-    if(isPlaying){
-        if(evt.keyIdentifier == "Right" && player.x+player.width < can.width){
-            player.x += player.speed;
-            player.check();
-            game.reDraw();
-        } else if(evt.keyIdentifier == "Left" && player.x > 0){
-            player.x -= player.speed;
-            player.check();
-            game.reDraw();
-        } else if(evt.keyIdentifier == "Down" && player.y+player.height < can.height){
-            player.y += player.speed;
-            player.check();
-            game.reDraw();
-        } else if(evt.keyIdentifier == "Up" && player.y > 0){
-            player.y -= player.speed;
-            player.check();
-            game.reDraw();
-        }
-    };
-});
-
-//NOTIFICATIONS
-function nextGame(){
-    Notification.requestPermission(function(p){
-        if(p == "granted"){
-            notify = new Notification("New Message From Edwin", {body: "You should try out part 2 http://eorroe.github.io/Fill-In-Box-2/"});
-            notify.addEventListener('click', function(){
-                window.location.href = "http://eorroe.github.io/Fill-In-Box-2/";
+            window.addEventListener('load', function(){
+                drawer = can.getContext('2d');
+                canvas.resize();
+                game.run();
             });
-        }
-    });
-};
-</script>
-</body>
+            document.addEventListener('resize', canvas.resize);
+            window.addEventListener("keydown", function(evt) {
+                if(game.isPlaying){
+                    if(evt.keyIdentifier == "Right" && player.x+player.size < can.width){
+                        player.x += player.size;
+                    } else if(evt.keyIdentifier == "Left" && player.x > 0){
+                        player.x -= player.size;
+                    } else if(evt.keyIdentifier == "Down" && player.y+player.size < can.height){
+                        player.y += player.size;
+                    } else if(evt.keyIdentifier == "Up" && player.y > 0){
+                        player.y -= player.size;
+                    };
+                    player.check();
+                };
+            });
+        </script>
+    </body>
 </html>
